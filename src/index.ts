@@ -1,12 +1,27 @@
-type Item = {
+type InputItem = {
   name: string;
-  tagName: string;
-  type?: string;
+  tagName: 'input';
+  type: string;
   label: string;
   placeholder?: string;
   values?: { label: string; value: number }[];
-  options?: { text: string; value: number }[];
 };
+
+type SelectItem = {
+  name: string;
+  tagName: 'select';
+  label: string;
+  options: { text: string; value: number }[];
+};
+
+type TextareaItem = {
+  name: string;
+  tagName: 'textarea';
+  label: string;
+  placeholder?: string;
+};
+
+type Item = InputItem | SelectItem | TextareaItem;
 
 const items: Item[] = [
   {
@@ -80,38 +95,57 @@ const items: Item[] = [
 // _____________________________________________________________________________
 //
 
-function createInputRow(item: Item) {
-  return `
+function createInputRow(item: InputItem) {
+  let res = `
     <tr>
       <th>
+        ${item.label}
       </th>
-      <td>
-        <input />
+      <td>`;
+
+  if (item.values !== undefined) {
+    for (let i = 0; i < item.values.length; i++)
+      res += `<input name="${item.name}" type="${item.type}" value="${item.values[i].value}" />${item.values[i].label}`;
+  } else {
+    res += `<input name="${item.name}" type="${item.type}" placeholder="${item.placeholder ? item.placeholder : ''}" />`;
+  }
+
+  res += `
       </td>
     </tr>
   `;
+
+  return res;
 }
 
-function createSelectRow(item: Item) {
-  return `
+function createSelectRow(item: SelectItem) {
+  let res = `
     <tr>
       <th>
+        ${item.label}
       </th>
       <td>
-        <select>
-        </select>
+        <select name="${item.name}">`;
+
+  for (let i = 0; i < item.options.length; i++)
+    res += `<option value=${item.options[i].value}>${item.options[i].text}</option>`;
+
+  res += `</select>
       </td>
     </tr>
   `;
+
+  return res;
 }
 
-function createTextAreaRow(item: Item) {
+function createTextAreaRow(item: TextareaItem) {
   return `
     <tr>
       <th>
+        ${item.label}
       </th>
       <td>
-        <textarea></textarea>
+        <textarea name="${item.name}" placeholder="${item.placeholder ? item.placeholder : ''}"></textarea>
       </td>
     </tr>
   `;
@@ -135,7 +169,8 @@ function createTable() {
 
 function createFormDom() {
   const form = document.getElementById("form");
-  form.innerHTML = createTable();
+  if (form !== null)
+    form.innerHTML = createTable();
 }
 
 createFormDom();
