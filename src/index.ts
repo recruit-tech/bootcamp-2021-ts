@@ -1,10 +1,15 @@
 type InputItem = {
   name: string;
   tagName: 'input';
-  type: string;
+  type: 'text' | 'email' | 'tel'
   label: string;
-  placeholder?: string;
-  values?: { label: string; value: number }[];
+  placeholder: string;
+} | {
+  name: string;
+  tagName: 'input';
+  type: 'radio' | 'checkbox';
+  label: string;
+  values: { label: string; value: number }[];
 };
 
 type SelectItem = {
@@ -18,7 +23,7 @@ type TextareaItem = {
   name: string;
   tagName: 'textarea';
   label: string;
-  placeholder?: string;
+  placeholder: string;
 };
 
 type Item = InputItem | SelectItem | TextareaItem;
@@ -103,11 +108,17 @@ function createInputRow(item: InputItem) {
       </th>
       <td>`;
 
-  if (item.values !== undefined) {
-    for (let i = 0; i < item.values.length; i++)
-      res += `<input name="${item.name}" type="${item.type}" value="${item.values[i].value}" />${item.values[i].label}`;
-  } else {
-    res += `<input name="${item.name}" type="${item.type}" placeholder="${item.placeholder ? item.placeholder : ''}" />`;
+  switch (item.type) {
+    case 'text':
+    case 'email':
+    case 'tel':
+      res += `<input name="${item.name}" type="${item.type}" placeholder="${item.placeholder}" />`;
+      break;
+    case 'radio':
+    case 'checkbox':
+      for (let i = 0; i < item.values.length; i++)
+        res += `<input name="${item.name}" type="${item.type}" value="${item.values[i].value}" />${item.values[i].label}`;
+      break;
   }
 
   res += `
@@ -145,7 +156,7 @@ function createTextAreaRow(item: TextareaItem) {
         ${item.label}
       </th>
       <td>
-        <textarea name="${item.name}" placeholder="${item.placeholder ? item.placeholder : ''}"></textarea>
+        <textarea name="${item.name}" placeholder="${item.placeholder}"></textarea>
       </td>
     </tr>
   `;
