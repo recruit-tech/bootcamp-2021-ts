@@ -81,24 +81,53 @@ const items: Item[] = [
 //
 
 function createInputRow(item: Item) {
-  return `
-    <tr>
-      <th>
-      </th>
-      <td>
-        <input />
-      </td>
-    </tr>
-  `;
+  switch (item.type) {
+    case "radio":
+    case "checkbox":
+      let tempString = "";
+      item.values?.forEach((i) => {
+        const id = String(item.name) + String(i.value);
+        tempString += `<input name="${item.name}" id="${id}" type="${item.type}" value="${i.value}"/>
+        <label for="${id}">${i.label}</label>
+        `
+      });
+      return  `
+        <tr>
+          <th>
+            ${item.label}
+          </th>
+          <td>
+            ${tempString}
+          </td>
+        </tr>
+      `
+    default:
+      return `
+        <tr>
+          <th>
+            ${item.label}
+          </th>
+          <td>
+            <input name="${item.name}" placeholder="${item.placeholder}" type="${item.type}" />
+          </td>
+        </tr>
+      `;
+  }
 }
 
 function createSelectRow(item: Item) {
+  let tempString = "";
+  item.options?.forEach((option) => {
+    tempString += `<option value="${option.value}">${option.text}</option>`
+  })
   return `
     <tr>
       <th>
+      ${item.label}
       </th>
       <td>
-        <select>
+        <select name="${item.name}">
+          ${tempString}
         </select>
       </td>
     </tr>
@@ -109,9 +138,10 @@ function createTextAreaRow(item: Item) {
   return `
     <tr>
       <th>
+        ${item.label}
       </th>
       <td>
-        <textarea></textarea>
+        <textarea placeholder="${item.placeholder}"></textarea>
       </td>
     </tr>
   `;
@@ -134,7 +164,7 @@ function createTable() {
 }
 
 function createFormDom() {
-  const form = document.getElementById("form");
+  const form = document.getElementById("form")!;
   form.innerHTML = createTable();
 }
 
