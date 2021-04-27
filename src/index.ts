@@ -136,10 +136,7 @@ function createInputRow(
         </tr>`;
     case "radio":
     case "checkbox":
-      const values = item.values;
-      if (!values) return "";
-
-      const inputs_html = values
+      const inputs_html = item.values
         .map(
           (x) => `
           <input type="${item.type}" id="${x.label}" name="${item.name}" value="${x.value}">
