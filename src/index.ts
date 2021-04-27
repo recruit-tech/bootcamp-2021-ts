@@ -1,11 +1,43 @@
 type Item = {
   name: string;
-  tagName: string;
-  type?: string;
+  tagName: "input";
+  type: "text";
   label: string;
-  placeholder?: string;
-  values?: { label: string; value: number }[];
-  options?: { text: string; value: number }[];
+  placeholder: string;
+} | {
+  name: string;
+  tagName: "input";
+  type: "email";
+  label: string;
+  placeholder: string;
+} | {
+  name: string;
+  tagName: "input";
+  type: "tel";
+  label: string;
+  placeholder: string;
+} | {
+  name: string;
+  tagName: "input";
+  type: "radio";
+  label: string;
+  values: { label: string; value: number }[];
+} | {
+  name: string;
+  tagName: "input";
+  type: "checkbox";
+  label: string;
+  values: { label: string; value: number }[];
+} | {
+  name: string;
+  tagName: "select";
+  label: string;
+  options: { text: string; value: number }[];
+} | {
+  name: string;
+  tagName: "textarea";
+  label: string;
+  placeholder: string;
 };
 
 const items: Item[] = [
@@ -88,10 +120,18 @@ const myEscape = (s: string) => s
 .replace(/'/g, '&#39;');
 
 function createInputRow(item: Item) {
+  if (item.tagName !== 'input') {
+    throw new Error('item.tagName !== input');
+  }
   let input = '        ';
-  if (item.values == null) {
+  switch (item.type) {
+  case 'text':
+  case 'email':
+  case 'tel':
     input = `<input type="${item.type}" name="${item.name}" placeholder="${item.placeholder}" />\r\n`;
-  } else {
+    break;
+  case 'radio':
+  case 'checkbox':
     for (let i = 0; i < item.values.length; ++i) {
       const value = item.values[i];
       const id = `${item.name}_${i}`;
@@ -111,12 +151,13 @@ function createInputRow(item: Item) {
 }
 
 function createSelectRow(item: Item) {
+  if (item.tagName !== 'select') {
+    throw new Error('item.tagName !== select');
+  }
   let options = '          ';
-  if (item.options != null) {
-    for (let i = 0; i < item.options.length; ++i) {
-      const option = item.options[i];
-      options += `<option value="${option.value}">${option.text}</option>`;
-    }
+  for (let i = 0; i < item.options.length; ++i) {
+    const option = item.options[i];
+    options += `<option value="${option.value}">${option.text}</option>`;
   }
   return `
     <tr>
@@ -133,6 +174,9 @@ function createSelectRow(item: Item) {
 }
 
 function createTextAreaRow(item: Item) {
+  if (item.tagName !== 'textarea') {
+    throw new Error('item.tagName !== textarea');
+  }
   return `
     <tr>
       <th>
