@@ -149,11 +149,7 @@ function createInputRow(item: TextItem | RadioOrCheckboxItem) {
   `;
 }
 
-function createSelectOptions(options?: {text: string, value: number}[]) {
-  if (options === undefined) {
-    return "";
-  }
-
+function createSelectOptions(options: {text: string, value: number}[]) {
   let str = "";
   options.forEach(option => {
     str += `
