@@ -142,7 +142,7 @@ function createInputRow(
           <input type="${item.type}" id="${x.label}" name="${item.name}" value="${x.value}">
           <label for="${x.label}">${x.label}</label>`
         )
-        .reduce((s, x) => s + x);
+        .join("");
 
       return `
         <tr>
@@ -157,7 +157,7 @@ function createInputRow(
 function createSelectRow(item: SelectItem): string {
   const options_html = item.options
     .map((x) => `<option value="${x.value}">${x.text}</option>`)
-    .reduce((s, x) => s + x);
+    .join("");
 
   return `
     <tr>
