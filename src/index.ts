@@ -1,3 +1,4 @@
+// types
 type Item = {
   name: string;
   tagName: string;
@@ -8,6 +9,7 @@ type Item = {
   options?: { text: string; value: number }[];
 };
 
+// form data
 const items: Item[] = [
   {
     name: "name",
@@ -80,38 +82,86 @@ const items: Item[] = [
 // _____________________________________________________________________________
 //
 
-function createInputRow(item: Item) {
-  return `
-    <tr>
-      <th>
-      </th>
-      <td>
-        <input />
-      </td>
-    </tr>
-  `;
+function createOptionalAttrHTML(attr_name: string, value?: string): string {
+  return value ? `${attr_name}="${value}"` : "";
 }
 
-function createSelectRow(item: Item) {
+function createInputRow(item: Item): string {
+  if (item.tagName !== "input") return "";
+
+  const type = item.type ? item.type : null;
+  switch (type) {
+    case "text":
+    case "email":
+    case "tel":
+      return `
+      <tr>
+        <th>${item.label}</th>
+        <td>
+          <input ${createOptionalAttrHTML(
+            "type",
+            item.type
+          )} ${createOptionalAttrHTML("placeholder", item.placeholder)} />
+        </td>
+      </tr>
+    `;
+    case "radio":
+    case "checkbox":
+      const values = item.values;
+      if (!values) return "";
+
+      const inputs_html = values
+        .map(
+          (x) => `
+          <input ${createOptionalAttrHTML("type", item.type)} id="${
+            x.label
+          }" name="${item.name}" value="${x.value}">
+          <label for="${x.label}">${x.label}</label>`
+        )
+        .reduce((s, x) => s + x);
+
+      return `
+        <tr>
+          <th>${item.label}</th>
+          <td>${inputs_html}</td>
+        </tr>`;
+    default:
+      return "";
+  }
+}
+
+function createSelectRow(item: Item): string {
+  if (item.tagName !== "select") return "";
+
+  const options = item.options;
+  if (!options) return "";
+
+  const options_html = options
+    .map((x) => `<option value="${x.value}">${x.text}</option>`)
+    .reduce((s, x) => s + x);
+
   return `
     <tr>
-      <th>
-      </th>
+      <th>${item.label}</th>
       <td>
         <select>
+          ${options_html}
         </select>
       </td>
     </tr>
   `;
 }
 
-function createTextAreaRow(item: Item) {
+function createTextAreaRow(item: Item): string {
+  if (item.tagName !== "textarea") return "";
+
   return `
     <tr>
-      <th>
-      </th>
+      <th>${item.label}</th>
       <td>
-        <textarea></textarea>
+        <textarea id="${item.name}" name="${
+    item.name
+  }" ${createOptionalAttrHTML("placeholder", item.placeholder)}></textarea>
       </td>
     </tr>
   `;
@@ -135,6 +185,8 @@ function createTable() {
 
 function createFormDom() {
   const form = document.getElementById("form");
+  if (form === null) return;
+
   form.innerHTML = createTable();
 }
 
