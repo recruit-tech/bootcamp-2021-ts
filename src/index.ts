@@ -1,6 +1,6 @@
 type TextItem = {
   name: string;
-  tagName: string;
+  tagName: "input";
   type: "text" | "email" | "tel";
   label: string;
   placeholder: string;
@@ -9,7 +9,7 @@ type TextItem = {
 type RadioOrCheckboxItem = {
   name: string;
   label: string;
-  tagName: string;
+  tagName: "input";
   type: "radio" | "checkbox";
   values: { label: string; value: number }[];
 }
@@ -24,7 +24,7 @@ type SelectItem = {
 type TextAreaItem = {
   name: string;
   label: string;
-  tagName: string;
+  tagName: "textarea";
   placeholder: string;
 }
 
@@ -196,11 +196,11 @@ function createTable() {
     .map((item) => {
       switch (item.tagName) {
         case "input":
-          return createInputRow(item as TextItem | RadioOrCheckboxItem)
+          return createInputRow(item)
         case "select":
-          return createSelectRow(item as SelectItem);
+          return createSelectRow(item);
         case "textarea":
-          return createTextAreaRow(item as TextAreaItem);
+          return createTextAreaRow(item);
       }
     })
     .join("");
