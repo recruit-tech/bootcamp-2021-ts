@@ -80,25 +80,73 @@ const items: Item[] = [
 // _____________________________________________________________________________
 //
 
+function createInputTd(type?: string, values?: {label: string, value: number}[], placeholder?: string) {
+  switch (type) {
+    case "text": case "email": case "tel":
+      return `
+        <input type="text" placeholder=${placeholder !== undefined ? placeholder : " "} >
+      `
+    case "radio":
+      let str = "";
+      if (values === undefined) return str;
+      values.forEach(value => {
+        str += `
+        <input type="radio" value=${value.value} >${value.label}
+      `
+      });
+      return str;
+    case "checkbox":
+      str = "";
+      if (values === undefined) return str;
+      values.forEach(value => {
+        str += `
+        <input type="checkbox" value=${value.value} >${value.label}
+      `
+      });
+      return str;
+    default:
+      return "";
+  }
+
+}
+
 function createInputRow(item: Item) {
   return `
     <tr>
       <th>
+        ${item.label}
       </th>
       <td>
-        <input />
+        ${createInputTd(item.type, item.values, item.placeholder)}
       </td>
     </tr>
   `;
+}
+
+function createSelectOptions(options?: {text: string, value: number}[]) {
+  if (options === undefined) {
+    return "";
+  }
+
+  let str = "";
+  options.forEach(option => {
+    str += `
+    <option value="${option.value}">${option.text}</option>
+  `
+  });
+  console.log(str);
+  return str;
 }
 
 function createSelectRow(item: Item) {
   return `
     <tr>
       <th>
+        ${item.label}
       </th>
       <td>
         <select>
+          ${createSelectOptions(item.options)}
         </select>
       </td>
     </tr>
@@ -109,9 +157,10 @@ function createTextAreaRow(item: Item) {
   return `
     <tr>
       <th>
+        ${item.label}
       </th>
       <td>
-        <textarea></textarea>
+        <textarea placeholder=${item.placeholder !== undefined ? item.placeholder : " "}></textarea>
       </td>
     </tr>
   `;
@@ -135,7 +184,9 @@ function createTable() {
 
 function createFormDom() {
   const form = document.getElementById("form");
-  form.innerHTML = createTable();
+  if (form !== null) {
+    form.innerHTML = createTable();
+  }
 }
 
 createFormDom();
