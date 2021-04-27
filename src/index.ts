@@ -1,12 +1,38 @@
-type Item = {
+type TextItem = {
   name: string;
   tagName: string;
-  type?: string;
+  type: "text" | "email" | "tel";
   label: string;
-  placeholder?: string;
-  values?: { label: string; value: number }[];
-  options?: { text: string; value: number }[];
-};
+  placeholder: string;
+}
+
+type RadioOrCheckboxItem = {
+  name: string;
+  label: string;
+  tagName: string;
+  type: "radio" | "checkbox";
+  values: { label: string; value: number }[];
+}
+
+type SelectItem = {
+  name: string;
+  label: string;
+  tagName: "select";
+  options: { text: string, value: number }[];
+}
+
+type TextAreaItem = {
+  name: string;
+  label: string;
+  tagName: string;
+  placeholder: string;
+}
+
+type Item =
+  TextItem |
+  RadioOrCheckboxItem |
+  SelectItem |
+  TextAreaItem;
 
 const items: Item[] = [
   {
@@ -80,44 +106,44 @@ const items: Item[] = [
 // _____________________________________________________________________________
 //
 
-function createInputTd(type?: string, values?: {label: string, value: number}[], placeholder?: string) {
+function createTextInput(type: string, placeholder: string) {
   switch (type) {
     case "text": case "email": case "tel":
       return `
-        <input type="text" placeholder=${placeholder !== undefined ? placeholder : " "} >
+        <input type=${type}" placeholder=${placeholder} >
       `
-    case "radio":
-      let str = "";
-      if (values === undefined) return str;
-      values.forEach(value => {
-        str += `
-        <input type="radio" value=${value.value} >${value.label}
-      `
-      });
-      return str;
-    case "checkbox":
-      str = "";
-      if (values === undefined) return str;
-      values.forEach(value => {
-        str += `
-        <input type="checkbox" value=${value.value} >${value.label}
-      `
-      });
-      return str;
     default:
       return "";
   }
-
 }
 
-function createInputRow(item: Item) {
+function createRadioOrCheckbox(type: string, values: {label: string, value: number}[]) {
+  let str = "";
+  values.forEach(value => {
+    str += `
+        <input type="${type}" value=${value.value} >${value.label}
+      `
+  });
+  return str;
+}
+
+function createInputRow(item: TextItem | RadioOrCheckboxItem) {
+  let row = ""
+  switch (item.type) {
+    case "text": case "email": case "tel":
+      row += createTextInput(item.type, item.placeholder)
+      break;
+    case "radio": case "checkbox":
+      row += createRadioOrCheckbox(item.type, item.values)
+      break;
+  }
   return `
     <tr>
       <th>
         ${item.label}
       </th>
       <td>
-        ${createInputTd(item.type, item.values, item.placeholder)}
+        ${row}
       </td>
     </tr>
   `;
@@ -134,11 +160,10 @@ function createSelectOptions(options?: {text: string, value: number}[]) {
     <option value="${option.value}">${option.text}</option>
   `
   });
-  console.log(str);
   return str;
 }
 
-function createSelectRow(item: Item) {
+function createSelectRow(item: SelectItem) {
   return `
     <tr>
       <th>
@@ -153,14 +178,14 @@ function createSelectRow(item: Item) {
   `;
 }
 
-function createTextAreaRow(item: Item) {
+function createTextAreaRow(item: TextAreaItem) {
   return `
     <tr>
       <th>
         ${item.label}
       </th>
       <td>
-        <textarea placeholder=${item.placeholder !== undefined ? item.placeholder : " "}></textarea>
+        <textarea placeholder=${item.placeholder}></textarea>
       </td>
     </tr>
   `;
@@ -171,11 +196,11 @@ function createTable() {
     .map((item) => {
       switch (item.tagName) {
         case "input":
-          return createInputRow(item);
+          return createInputRow(item as TextItem | RadioOrCheckboxItem)
         case "select":
-          return createSelectRow(item);
+          return createSelectRow(item as SelectItem);
         case "textarea":
-          return createTextAreaRow(item);
+          return createTextAreaRow(item as TextAreaItem);
       }
     })
     .join("");
