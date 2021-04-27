@@ -80,25 +80,52 @@ const items: Item[] = [
 // _____________________________________________________________________________
 //
 
+const myEscape = (s: string) => s
+.replace(/&/g, '&amp;')
+.replace(/</g, '&lt;')
+.replace(/>/g, '&gt;')
+.replace(/"/g, '&quot;')
+.replace(/'/g, '&#39;');
+
 function createInputRow(item: Item) {
+  let input = '        ';
+  if (item.values == null) {
+    input = `<input type="${item.type}" name="${item.name}" placeholder="${item.placeholder}" />\r\n`;
+  } else {
+    for (let i = 0; i < item.values.length; ++i) {
+      const value = item.values[i];
+      const id = `${item.name}_${i}`;
+      input += `<input type="${item.type}" name="${item.name}" value="${value.value}" id="${id}"><label for="${id}">${value.label}</label>\r\n`;
+    }
+  }
   return `
     <tr>
       <th>
+        ${item.label}
       </th>
       <td>
-        <input />
+        ${input}
       </td>
     </tr>
   `;
 }
 
 function createSelectRow(item: Item) {
+  let options = '          ';
+  if (item.options != null) {
+    for (let i = 0; i < item.options.length; ++i) {
+      const option = item.options[i];
+      options += `<option value="${option.value}">${option.text}</option>`;
+    }
+  }
   return `
     <tr>
       <th>
+        ${item.label}
       </th>
       <td>
-        <select>
+        <select name=${item.name}>
+          ${options}
         </select>
       </td>
     </tr>
@@ -109,9 +136,10 @@ function createTextAreaRow(item: Item) {
   return `
     <tr>
       <th>
+        ${item.label}
       </th>
       <td>
-        <textarea></textarea>
+        <textarea name="${item.name}" placeholder="${item.placeholder}" ></textarea>
       </td>
     </tr>
   `;
@@ -135,6 +163,10 @@ function createTable() {
 
 function createFormDom() {
   const form = document.getElementById("form");
+  if (form == null) {
+      console.error('form == null');
+      return;
+  }
   form.innerHTML = createTable();
 }
 
