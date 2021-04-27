@@ -1,30 +1,40 @@
+// util
+type Implements<T, U extends T> = {};
+
 // types
-type SingleValueInputItem<TYPE extends string> = {
+interface ItemInterface {
+  name: string;
+  label: string;
+  tagName: string;
+}
+interface SingleValueInputItem<TYPE extends string>
+  extends Implements<ItemInterface, SingleValueInputItem<string>> {
   name: string;
   label: string;
   tagName: "input";
   type: TYPE;
   placeholder: string;
-};
-type MultipleValueInputItem<TYPE extends string> = {
+}
+interface MultipleValueInputItem<TYPE extends string>
+  extends Implements<ItemInterface, MultipleValueInputItem<string>> {
   name: string;
   label: string;
   tagName: "input";
   type: TYPE;
   values: { label: string; value: number }[];
-};
-type SelectItem = {
+}
+interface SelectItem extends Implements<ItemInterface, SelectItem> {
   name: string;
   label: string;
   tagName: "select";
   options: { text: string; value: number }[];
-};
-type TextareaItem = {
+}
+interface TextareaItem extends Implements<ItemInterface, TextareaItem> {
   name: string;
   label: string;
   tagName: "textarea";
   placeholder: string;
-};
+}
 type SingleValueInputItems =
   | SingleValueInputItem<"text">
   | SingleValueInputItem<"email">
