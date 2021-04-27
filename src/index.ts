@@ -118,13 +118,13 @@ function createTextInput(type: string, placeholder: string) {
 }
 
 function createRadioOrCheckbox(type: string, values: {label: string, value: number}[]) {
-  let str = "";
+  let row = "";
   values.forEach(value => {
-    str += `
+    row += `
         <input type="${type}" value=${value.value} >${value.label}
       `
   });
-  return str;
+  return row;
 }
 
 function createInputRow(item: TextItem | RadioOrCheckboxItem) {
