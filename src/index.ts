@@ -150,7 +150,8 @@ function createInputRow(
           <td>${inputs_html}</td>
         </tr>`;
     default:
-      return "";
+      const never_item: never = item;
+      throw new Error(`unexpected case: ${never_item}`);
   }
 }
 
@@ -192,6 +193,9 @@ function createTable() {
           return createSelectRow(item);
         case "textarea":
           return createTextAreaRow(item);
+        default:
+          const never_item: never = item;
+          throw new Error(`unexpected case: ${never_item}`);
       }
     })
     .join("");
