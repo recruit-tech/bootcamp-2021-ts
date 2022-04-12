@@ -1,13 +1,54 @@
-type Item = {
-  name: string;
-  tagName: string;
-  type?: string;
-  label: string;
-  placeholder?: string;
-  values?: { label: string; value: number }[];
-  options?: { text: string; value: number }[];
-};
+// util
+type Implements<T, U extends T> = {};
 
+// types
+interface ItemInterface {
+  name: string;
+  label: string;
+  tagName: string;
+}
+interface SingleValueInputItem<TYPE extends string>
+  extends Implements<ItemInterface, SingleValueInputItem<string>> {
+  name: string;
+  label: string;
+  tagName: "input";
+  type: TYPE;
+  placeholder: string;
+}
+interface MultipleValueInputItem<TYPE extends string>
+  extends Implements<ItemInterface, MultipleValueInputItem<string>> {
+  name: string;
+  label: string;
+  tagName: "input";
+  type: TYPE;
+  values: { label: string; value: number }[];
+}
+interface SelectItem extends Implements<ItemInterface, SelectItem> {
+  name: string;
+  label: string;
+  tagName: "select";
+  options: { text: string; value: number }[];
+}
+interface TextareaItem extends Implements<ItemInterface, TextareaItem> {
+  name: string;
+  label: string;
+  tagName: "textarea";
+  placeholder: string;
+}
+type SingleValueInputItems =
+  | SingleValueInputItem<"text">
+  | SingleValueInputItem<"email">
+  | SingleValueInputItem<"tel">;
+type MultipleValueInputItems =
+  | MultipleValueInputItem<"radio">
+  | MultipleValueInputItem<"checkbox">;
+type Item =
+  | SingleValueInputItems
+  | MultipleValueInputItems
+  | SelectItem
+  | TextareaItem;
+
+// form data
 const items: Item[] = [
   {
     name: "name",
@@ -79,39 +120,64 @@ const items: Item[] = [
 
 // _____________________________________________________________________________
 //
+function createInputRow(
+  item: SingleValueInputItems | MultipleValueInputItems
+): string {
+  switch (item.type) {
+    case "text":
+    case "email":
+    case "tel":
+      return `
+        <tr>
+          <th>${item.label}</th>
+          <td>
+            <input type="${item.type}" placeholder="${item.placeholder}" />
+          </td>
+        </tr>`;
+    case "radio":
+    case "checkbox":
+      const inputs_html = item.values
+        .map(
+          (x) => `
+          <input type="${item.type}" id="${x.label}" name="${item.name}" value="${x.value}">
+          <label for="${x.label}">${x.label}</label>`
+        )
+        .join("");
 
-function createInputRow(item: Item) {
-  return `
-    <tr>
-      <th>
-      </th>
-      <td>
-        <input />
-      </td>
-    </tr>
-  `;
+      return `
+        <tr>
+          <th>${item.label}</th>
+          <td>${inputs_html}</td>
+        </tr>`;
+    default:
+      const never_item: never = item;
+      throw new Error(`unexpected case: ${never_item}`);
+  }
 }
 
-function createSelectRow(item: Item) {
+function createSelectRow(item: SelectItem): string {
+  const options_html = item.options
+    .map((x) => `<option value="${x.value}">${x.text}</option>`)
+    .join("");
+
   return `
     <tr>
-      <th>
-      </th>
+      <th>${item.label}</th>
       <td>
         <select>
+          ${options_html}
         </select>
       </td>
     </tr>
   `;
 }
 
-function createTextAreaRow(item: Item) {
+function createTextAreaRow(item: TextareaItem): string {
   return `
     <tr>
-      <th>
-      </th>
+      <th>${item.label}</th>
       <td>
-        <textarea></textarea>
+        <textarea id="${item.name}" name="${item.name}" placeholder="${item.placeholder}></textarea>
       </td>
     </tr>
   `;
@@ -127,6 +193,9 @@ function createTable() {
           return createSelectRow(item);
         case "textarea":
           return createTextAreaRow(item);
+        default:
+          const never_item: never = item;
+          throw new Error(`unexpected case: ${never_item}`);
       }
     })
     .join("");
@@ -135,6 +204,8 @@ function createTable() {
 
 function createFormDom() {
   const form = document.getElementById("form");
+  if (form === null) return;
+
   form.innerHTML = createTable();
 }
 
