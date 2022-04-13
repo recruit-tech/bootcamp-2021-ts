@@ -184,7 +184,7 @@ function createTable() {
 }
 
 function createFormDom() {
-  const form = document.getElementById("form");
+  const form = document.getElementById("form")!;
   form.innerHTML = createTable();
 }
 
