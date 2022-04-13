@@ -119,32 +119,42 @@ function wrapDoms(label: string, elems: HTMLElement[]): HTMLElement {
   return tr
 }
 
-function createInputRow(item: InputItem) {
-  const tr = document.createElement("tr")
-  const th = document.createElement("th")
-  th.innerText = item.label
-  tr.appendChild(th)
-  const td = document.createElement("td")
+function createSelectableInputItem(item: SelectionInputItem) {
+  const doms: HTMLElement[] = []
+  for (const v of item.values) {
+    const id = `${item.name}-${v.value}`
+    const input = document.createElement("input")
+    input.name = item.name
+    input.type = item.type
+    input.value = v.value.toString()
+    input.id = id
+    doms.push(input)
+
+    const label = document.createElement("label")
+    label.textContent = v.label
+    label.htmlFor = id
+    doms.push(label)
+  }
+
+  return wrapDoms(item.label, doms)
+}
+
+function createSingleInputRow(item: OtherInputItem) {
   const input = document.createElement("input")
   input.name = item.name
   input.type = item.type
+  input.placeholder = item.placeholder
+  return wrapDoms(item.label, [input])
+}
 
+function createInputRow(item: InputItem) {
   switch (item.type) {
     case "checkbox":
-      break
     case "radio":
-      break
+      return createSelectableInputItem(item)
     default:
-      input.placeholder = item.placeholder
+      return createSingleInputRow(item)
   }
-
-
-  td.appendChild(input)
-  tr.appendChild(td)
-
-
-
-  return tr.outerHTML
 }
 
 function createSelectRow(item: SelectItem) {
@@ -152,40 +162,46 @@ function createSelectRow(item: SelectItem) {
 
   for (const i of item.options) {
     const opt = document.createElement("option")
-    opt.text =i.text
-    opt.value=i.value.toString()
+    opt.text = i.text
+    opt.value = i.value.toString()
     select.options.add(opt)
   }
 
-  return wrapDoms(item.label,[select]).outerHTML
+  return wrapDoms(item.label, [select])
 }
 
 function createTextAreaRow(item: TextAreaInputItem) {
   const textarea = document.createElement("textarea")
   textarea.name = item.name
   textarea.placeholder = item.placeholder
-  return wrapDoms(item.label, [textarea]).outerHTML
+  return wrapDoms(item.label, [textarea])
 }
 
 function createTable() {
-  const list = items
-    .map((item) => {
-      switch (item.tagName) {
-        case "input":
-          return createInputRow(item);
-        case "select":
-          return createSelectRow(item);
-        case "textarea":
-          return createTextAreaRow(item);
-      }
-    })
-    .join("");
-  return `<table>${list}</table>`;
+  const table = document.createElement("table")
+
+  for (const item of items) {
+    let dom: HTMLElement
+    switch (item.tagName) {
+      case "input":
+        dom = createInputRow(item);
+        break
+      case "select":
+        dom = createSelectRow(item);
+        break
+      case "textarea":
+        dom = createTextAreaRow(item);
+        break
+    }
+    table.appendChild(dom)
+  }
+
+  return table
 }
 
 function createFormDom() {
   const form = document.getElementById("form") as HTMLDivElement;
-  form.innerHTML = createTable();
+  form.appendChild(createTable());
 }
 
 createFormDom();
