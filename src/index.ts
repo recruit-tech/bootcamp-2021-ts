@@ -1,12 +1,34 @@
-type Item = {
+type TextInput = {
   name: string;
-  tagName: string;
-  type?: string;
+  tagName: "input";
+  type: "text" | "email" | "tel";
   label: string;
-  placeholder?: string;
-  values?: { label: string; value: number }[];
-  options?: { text: string; value: number }[];
-};
+  placeholder: string;
+}
+
+type CheckInput = {
+  name: string;
+  tagName: "input";
+  type: "radio" | "checkbox";
+  label: string;
+  values: { label: string; value: number }[];
+}
+
+type Select = {
+  name: string;
+  tagName: "select";
+  label: string;
+  options: { text: string; value: number }[];
+}
+
+type TextArea = {
+  name: string;
+  tagName: "textarea";
+  label: string;
+  placeholder: string;
+}
+
+type Item = TextInput | CheckInput | Select | TextArea;
 
 const items: Item[] = [
   {
@@ -80,38 +102,66 @@ const items: Item[] = [
 // _____________________________________________________________________________
 //
 
-function createInputRow(item: Item) {
-  return `
+function createInputRow(item: TextInput | CheckInput) {
+  if (item.type == "text" ||  item.type == "email" || item.type == "tel") {
+    return `
     <tr>
       <th>
+        ${item.label}
       </th>
       <td>
-        <input />
+        <input type="${item.type}" placeholder="${item.placeholder}" name=${item.name}/>
       </td>
     </tr>
   `;
+  } else if (item.type == "radio" || item.type == "checkbox") {
+    let inputElements = ""
+    for (let value of item.values) {
+      inputElements += `<input type="${item.type}" name=${item.name}} value="${value.value}"/>${value.label}`
+    }
+    
+    return `
+    <tr>
+      <th>
+        ${item.label}
+      </th>
+      <td>
+        ${inputElements}
+      </td>
+    </tr>
+  `;
+  }
+  
 }
 
-function createSelectRow(item: Item) {
+function createSelectRow(item: Select) {
+  let optionElements = ""
+    for (let option of item.options) {
+      optionElements += `<option value="${option.value}">${option.text}</option>`
+    }
+
   return `
     <tr>
       <th>
+        ${item.label}
       </th>
       <td>
         <select>
+          ${optionElements}
         </select>
       </td>
     </tr>
   `;
 }
 
-function createTextAreaRow(item: Item) {
+function createTextAreaRow(item: TextArea) {
   return `
     <tr>
       <th>
+        ${item.label}
       </th>
       <td>
-        <textarea></textarea>
+        <textarea name="${item.name}" placeholder="${item.placeholder}"></textarea>
       </td>
     </tr>
   `;
