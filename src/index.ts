@@ -118,31 +118,53 @@ function wrapDoms(label: string, elems: HTMLElement[]): HTMLElement {
 
   return tr
 }
+
+function createInputRow(item: InputItem) {
+  const tr = document.createElement("tr")
+  const th = document.createElement("th")
+  th.innerText = item.label
+  tr.appendChild(th)
+  const td = document.createElement("td")
+  const input = document.createElement("input")
+  input.name = item.name
+  input.type = item.type
+
+  switch (item.type) {
+    case "checkbox":
+      break
+    case "radio":
+      break
+    default:
+      input.placeholder = item.placeholder
+  }
+
+
+  td.appendChild(input)
+  tr.appendChild(td)
+
+
+
+  return tr.outerHTML
 }
 
-function createSelectRow(item: Item) {
-  return `
-    <tr>
-      <th>
-      </th>
-      <td>
-        <select>
-        </select>
-      </td>
-    </tr>
-  `;
+function createSelectRow(item: SelectItem) {
+  const select = document.createElement("select")
+
+  for (const i of item.options) {
+    const opt = document.createElement("option")
+    opt.text =i.text
+    opt.value=i.value.toString()
+    select.options.add(opt)
+  }
+
+  return wrapDoms(item.label,[select]).outerHTML
 }
 
-function createTextAreaRow(item: Item) {
-  return `
-    <tr>
-      <th>
-      </th>
-      <td>
-        <textarea></textarea>
-      </td>
-    </tr>
-  `;
+function createTextAreaRow(item: TextAreaInputItem) {
+  const textarea = document.createElement("textarea")
+  textarea.name = item.name
+  textarea.placeholder = item.placeholder
+  return wrapDoms(item.label, [textarea]).outerHTML
 }
 
 function createTable() {
@@ -162,7 +184,7 @@ function createTable() {
 }
 
 function createFormDom() {
-  const form = document.getElementById("form");
+  const form = document.getElementById("form") as HTMLDivElement;
   form.innerHTML = createTable();
 }
 
