@@ -1,11 +1,47 @@
-type Item = {
+type Item = InputTag | SelectTag | TextareaTag;
+type Option = {
+  text: string,
+  value: number
+};
+
+type InputTag = TextInput | Radio | Checkbox;
+
+type TextInput = {
   name: string;
-  tagName: string;
-  type?: string;
   label: string;
+  tagName: "input";
+  type: "text" | "email" | "tel";
   placeholder?: string;
-  values?: { label: string; value: number }[];
-  options?: { text: string; value: number }[];
+}
+
+type Radio = {
+  name: string;
+  label: string;
+  tagName: "input";
+  type: "radio";
+  values: { label: string; value: number }[];
+};
+
+type Checkbox = {
+  name: string;
+  label: string;
+  tagName: "input";
+  type: "checkbox";
+  values: { label: string; value: number }[];
+};
+
+type SelectTag = {
+  name: string;
+  label: string;
+  tagName: "select";
+  options: { text: string; value: number }[];
+};
+
+type TextareaTag = {
+  name: string;
+  label: string;
+  tagName: "textarea";
+  placeholder?: string;
 };
 
 const items: Item[] = [
@@ -80,38 +116,78 @@ const items: Item[] = [
 // _____________________________________________________________________________
 //
 
-function createInputRow(item: Item) {
+function createInputText(item: TextInput) {
   return `
     <tr>
       <th>
+        ${item.label}
       </th>
       <td>
-        <input />
+        <input type="${item.type}" placeholder="${item.placeholder}" name="${item.name}" />
       </td>
     </tr>
   `;
 }
 
-function createSelectRow(item: Item) {
+function createButtons(type: string, name: string, values: {label: string, value: number}[]) {
+  return values.map(value => `
+    <input type="${type}" id="${value.value}" name="${name}">
+    <label for="${value.value}">${value.label}</label>
+  `).join();
+}
+
+function createInputButton(item: Radio | Checkbox) {
   return `
     <tr>
       <th>
+        ${item.label}
       </th>
       <td>
-        <select>
+        ${createButtons(item.type, item.name, item.values)}
+      </td>
+    </tr>
+  `;
+}
+
+function createInputRow(item: InputTag) {
+  switch(item.type) {
+    case "checkbox": case "radio":
+      return createInputButton(item);
+    case "email": case "text": case "text":
+      return createInputText(item);
+    default:
+      // ts-expect-error
+      console.log(item);
+  }
+}
+
+function createOptions(options: Option[]) {
+  return options.map(option => `<option value=${option.value}>${option.text}</option>`).join();
+}
+
+function createSelectRow(item: SelectTag) {
+  return `
+    <tr>
+      <th>
+        ${item.label}
+      </th>
+      <td>
+        <select name=${item.name}>
+          ${createOptions(item.options)}
         </select>
       </td>
     </tr>
   `;
 }
 
-function createTextAreaRow(item: Item) {
+function createTextAreaRow(item: TextareaTag) {
   return `
     <tr>
       <th>
+        ${item.label}
       </th>
       <td>
-        <textarea></textarea>
+        <textarea name=${item.name}>${item.placeholder}</textarea>
       </td>
     </tr>
   `;
