@@ -8,6 +8,10 @@ type Item = {
   options?: { text: string; value: number }[];
 };
 
+type InputItem = Item & {
+  type: string
+}
+
 const items: Item[] = [
   {
     name: "name",
@@ -80,13 +84,31 @@ const items: Item[] = [
 // _____________________________________________________________________________
 //
 
-function createInputRow(item: Item) {
+function createInputRow(item: InputItem) {
+  let input: string;
+  switch (item.type) {
+    case "text":
+    case "email":
+    case "tel":
+      input = `<input type="${item.type}" placeholder=${item.placeholder} name=${item.name}>`
+      break
+    case "radio":
+    case "checkbox":
+        input = item.values?.map(value => {
+          return `<input type="${item.type}" value=${value.value} name=${item.name}><label>${value.label}</label>`
+      }).join("") as string;
+      break
+    default:
+      throw new Error("invalid type name");
+  }
+
   return `
     <tr>
       <th>
+        ${item.label}
       </th>
       <td>
-        <input />
+        ${input}
       </td>
     </tr>
   `;
@@ -122,7 +144,7 @@ function createTable() {
     .map((item) => {
       switch (item.tagName) {
         case "input":
-          return createInputRow(item);
+          return createInputRow(item as InputItem);
         case "select":
           return createSelectRow(item);
         case "textarea":
