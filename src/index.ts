@@ -1,6 +1,7 @@
+type TagName = "input" | "select" | "textarea";
 type Item = {
   name: string;
-  tagName: string;
+  tagName: TagName;
   type?: string;
   label: string;
   placeholder?: string;
@@ -80,25 +81,59 @@ const items: Item[] = [
 // _____________________________________________________________________________
 //
 
-function createInputRow(item: Item) {
+function createSingleRow(item: Item) {
   return `
     <tr>
       <th>
+      <label for="${item.name}">${item.label}</label>
       </th>
       <td>
-        <input />
+        <input type="${item.type}" name="${item.name}" placeholder="${item.placeholder}"/>
       </td>
     </tr>
   `;
+}
+
+function createInputRow(item: Item) {
+  switch (item.type) {
+    case "text":
+    case "email":
+    case "tel":
+      return createSingleRow(item);
+    case "radio":
+    case "checkbox":
+      return createRadioAndCheckboxRow(item);
+  }
+}
+
+function createRadioAndCheckboxRow(item: Item) {
+  return `
+  <tr>
+    <th>
+      <label for="${item.name}">${item.label}</label>
+    </th>
+    <td>
+      ${item.values?.map((value) => {
+    return `
+    <label>
+      <input type="${item.type}" name="${item.name}" value="${value.value}"/>
+      ${value.label}
+    </label>`
+  }).join('')}
+    </td>
+  </tr>
+`;
 }
 
 function createSelectRow(item: Item) {
   return `
     <tr>
       <th>
+      <label for="${item.name}">${item.label}</label>
       </th>
       <td>
         <select>
+        ${item.options?.map((options) => `<option value=${options.value}>${options.text}</option>`)}
         </select>
       </td>
     </tr>
@@ -109,9 +144,10 @@ function createTextAreaRow(item: Item) {
   return `
     <tr>
       <th>
+      <label for="${item.name}">${item.label}</label>
       </th>
       <td>
-        <textarea></textarea>
+        <textarea placeholder="${item.placeholder}"></textarea>
       </td>
     </tr>
   `;
@@ -135,7 +171,9 @@ function createTable() {
 
 function createFormDom() {
   const form = document.getElementById("form");
-  form.innerHTML = createTable();
+  if (form) {
+    form.innerHTML = createTable();
+  }
 }
 
 createFormDom();
