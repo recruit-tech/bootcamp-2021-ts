@@ -1,8 +1,8 @@
 type Item = {
   name: string;
+  label: string;
   tagName: string;
   type?: string;
-  label: string;
   placeholder?: string;
   values?: { label: string; value: number }[];
   options?: { text: string; value: number }[];
