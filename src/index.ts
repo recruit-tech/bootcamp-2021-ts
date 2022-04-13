@@ -103,16 +103,21 @@ const items: Item[] = [
 // _____________________________________________________________________________
 //
 
-function createInputRow(item: Item) {
-  return `
-    <tr>
-      <th>
-      </th>
-      <td>
-        <input />
-      </td>
-    </tr>
-  `;
+function wrapDoms(label: string, elems: HTMLElement[]): HTMLElement {
+  const tr = document.createElement("tr")
+  const th = document.createElement("th")
+  th.innerText = label
+  tr.appendChild(th)
+  const td = document.createElement("td")
+
+  for (const elem of elems) {
+    td.appendChild(elem)
+  }
+
+  tr.appendChild(td)
+
+  return tr
+}
 }
 
 function createSelectRow(item: Item) {
