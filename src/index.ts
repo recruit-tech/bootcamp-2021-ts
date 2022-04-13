@@ -1,12 +1,35 @@
-type Item = {
+type InputItemBase<T extends string> = {
   name: string;
-  tagName: string;
-  type?: string;
+  tagName: "input";
   label: string;
-  placeholder?: string;
-  values?: { label: string; value: number }[];
-  options?: { text: string; value: number }[];
-};
+  type: T
+}
+
+type SelectionInputItem = {
+  values: { label: string; value: number }[];
+} & InputItemBase<"checkbox" | "radio">
+
+type OtherInputItem = {
+  placeholder: string;
+} & InputItemBase<"text" | "email" | "tel">
+
+type InputItem = SelectionInputItem | OtherInputItem
+
+type TextAreaInputItem = {
+  name: string,
+  tagName: "textarea",
+  label: string;
+  placeholder: string;
+}
+
+type SelectItem = {
+  name: string;
+  tagName: "select";
+  label: string;
+  options: { text: string; value: number }[];
+}
+
+type Item = TextAreaInputItem | SelectItem | InputItem;
 
 const items: Item[] = [
   {
