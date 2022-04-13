@@ -116,14 +116,23 @@ const items: Item[] = [
 // _____________________________________________________________________________
 //
 
+function escapeHTML(raw: string) {
+  return raw.replace(`'`, '&#x27;')
+    .replace(`"`, '&quot;')
+    .replace('`', '&#x60;')
+    .replace('<', '&lt;')
+    .replace('>', '&gt;')
+    .replace('&', '&amp;');
+}
+
 function createInputText(item: TextInput) {
   return `
     <tr>
       <th>
-        ${item.label}
+        ${escapeHTML(item.label)}
       </th>
       <td>
-        <input type="${item.type}" placeholder="${item.placeholder}" name="${item.name}" />
+        <input type="${escapeHTML(item.type)}" placeholder="${escapeHTML(item.placeholder ?? "")}" name="${escapeHTML(item.name)}" />
       </td>
     </tr>
   `;
@@ -131,8 +140,8 @@ function createInputText(item: TextInput) {
 
 function createButtons(type: string, name: string, values: {label: string, value: number}[]) {
   return values.map(value => `
-    <input type="${type}" id="${value.value}" name="${name}">
-    <label for="${value.value}">${value.label}</label>
+    <input type="${escapeHTML(type)}" id="${value.value}" name="${escapeHTML(name)}">
+    <label for="${value.value}">${escapeHTML(value.label)}</label>
   `).join();
 }
 
@@ -140,7 +149,7 @@ function createInputButton(item: Radio | Checkbox) {
   return `
     <tr>
       <th>
-        ${item.label}
+        ${escapeHTML(item.label)}
       </th>
       <td>
         ${createButtons(item.type, item.name, item.values)}
@@ -162,17 +171,17 @@ function createInputRow(item: InputTag) {
 }
 
 function createOptions(options: Option[]) {
-  return options.map(option => `<option value=${option.value}>${option.text}</option>`).join();
+  return options.map(option => `<option value=${option.value}>${escapeHTML(option.text)}</option>`).join();
 }
 
 function createSelectRow(item: SelectTag) {
   return `
     <tr>
       <th>
-        ${item.label}
+        ${escapeHTML(item.label)}
       </th>
       <td>
-        <select name=${item.name}>
+        <select name=${escapeHTML(item.name)}>
           ${createOptions(item.options)}
         </select>
       </td>
@@ -184,10 +193,10 @@ function createTextAreaRow(item: TextareaTag) {
   return `
     <tr>
       <th>
-        ${item.label}
+        ${escapeHTML(item.label)}
       </th>
       <td>
-        <textarea name=${item.name}>${item.placeholder}</textarea>
+        <textarea name=${escapeHTML(item.name)}>${escapeHTML(item.placeholder ?? "")}</textarea>
       </td>
     </tr>
   `;
